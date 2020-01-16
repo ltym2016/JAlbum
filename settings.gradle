@@ -1,0 +1,2 @@
+include ':app', ':jalbum'
+rootProject.name='SelectAlbumDemo'
