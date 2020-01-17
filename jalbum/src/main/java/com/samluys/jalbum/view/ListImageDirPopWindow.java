@@ -1,4 +1,4 @@
-package com.samluys.jalbum;
+package com.samluys.jalbum.view;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -20,6 +20,8 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.samluys.jalbum.Imageloader;
+import com.samluys.jalbum.R;
 import com.samluys.jalbum.common.Constants;
 import com.samluys.jalbum.entity.FileEntity;
 import com.samluys.jalbum.entity.FolderBean;

@@ -30,7 +30,8 @@ import androidx.core.content.FileProvider;
 import androidx.core.os.EnvironmentCompat;
 
 
-import com.samluys.jalbum.ListImageDirPopWindow;
+import com.samluys.jalbum.SelectionConfig;
+import com.samluys.jalbum.view.ListImageDirPopWindow;
 import com.samluys.jalbum.R;
 import com.samluys.jalbum.adapter.PhotoAdapter;
 import com.samluys.jalbum.common.Constants;
@@ -65,12 +66,13 @@ public class PhotoActivity extends AppCompatActivity {
     private static final int DATA_LOADED = 0X110;
     public static final int CHANGE_NUM = 5678;
 
+    public static final int MSG_VIEW_VIDEO = 888;
     private static final int SELECTPHOTO = 527;
     // 调系统相机
     private static final int REQUEST_CODE_TAKE_PICTURE = 1001;
 
     private static final int MSG_FINISH = 666;
-
+    private SelectionConfig mSelectionConfig;
     private int mPhotoNum;
     private boolean mIsShowVideo = false;//是否可以选择本地视频
     private boolean mIsShowVideoOnly = false;//是否只显示本地视频
@@ -143,6 +145,8 @@ public class PhotoActivity extends AppCompatActivity {
                 case 1567:
                     takePhoto();
                     break;
+                case MSG_VIEW_VIDEO:
+                    break;
 
                 default:
                     break;
@@ -162,7 +166,7 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     private void initView() {
-
+        mSelectionConfig = SelectionConfig.getInstance();
         toolbar = findViewById(R.id.toolbar);
         btn_commit = findViewById(R.id.btn_commit);
         rl_finish = findViewById(R.id.rl_finish);
@@ -174,13 +178,13 @@ public class PhotoActivity extends AppCompatActivity {
         mBottomLy = findViewById(R.id.bottom_ly);
         mDirname = (Button) findViewById(R.id.id_dir_name);
 
-        mPhotoNum = getIntent().getIntExtra("PHOTO_NUM", -1);
-        mIsShowGif = getIntent().getBooleanExtra("SHOW_GIF", true);
-        mIsShowVideo = getIntent().getBooleanExtra("SHOW_VIDEO", false);
-        mIsShowVideoOnly = getIntent().getBooleanExtra("SHOW_VIDEO_ONLY", false);
+        mPhotoNum = mSelectionConfig.maxSelectNum;
+        mIsShowGif = mSelectionConfig.showGif;
+        mIsShowVideo = mSelectionConfig.showVideo;
+        mIsShowVideoOnly = mSelectionConfig.showVideoOnly;
         mSelectedImages = getIntent().getStringArrayListExtra("SELECTED_IMAGES");
         mSelectedImageSize = getIntent().getIntExtra("SELECTED_IMAGES_SIZE", 0);
-        mIsShowTakePhoto = getIntent().getBooleanExtra("SHOW_TAKE_PHOTO", true);
+        mIsShowTakePhoto = mSelectionConfig.showTakePhoto;
         mIsCanRepeatSelect = getIntent().getBooleanExtra("IS_CAN_REPEAT_SELECT", true);
         selectImages.clear();
 

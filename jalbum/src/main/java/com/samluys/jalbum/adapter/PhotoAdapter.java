@@ -1,11 +1,20 @@
 package com.samluys.jalbum.adapter;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +23,7 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -21,18 +31,27 @@ import com.samluys.jalbum.R;
 import com.samluys.jalbum.activity.FilePhotoSeeSelectedActivity;
 import com.samluys.jalbum.activity.PhotoActivity;
 import com.samluys.jalbum.common.Constants;
+import com.samluys.jalbum.common.DiskLruCache;
 import com.samluys.jalbum.common.ImageLoader;
 import com.samluys.jalbum.entity.FileEntity;
+import com.samluys.jutils.DateUtils;
+import com.samluys.jutils.FileUtils;
+import com.samluys.jutils.StringUtils;
 import com.samluys.jutils.ToastUtils;
 import com.samluys.jutils.Utils;
 import com.samluys.jutils.log.LogUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.internal.cache.DiskLruCache;
 
 
 public class PhotoAdapter extends BaseAdapter {
@@ -50,6 +69,7 @@ public class PhotoAdapter extends BaseAdapter {
     private boolean isCanRepeatSelect;
     private int itemWidth;
     private int mSelectSize;
+    private String videoCoverCacheFolder;
     // 当前正在选择
     private List<String> mChoosingPath = new ArrayList<>();
 
@@ -68,22 +88,23 @@ public class PhotoAdapter extends BaseAdapter {
         if (mSelectPath != null) {
             this.mSelectPath = mSelectPath;
         }
-//        initVideoCoverCache();
+        this.videoCoverCacheFolder = Utils.getContext().getCacheDir() + "/video_cover_cache" + File.separator;
+        initVideoCoverCache();
         mInflater = LayoutInflater.from(context);
         itemWidth = context.getResources().getDisplayMetrics().widthPixels / 4 - 1;
-//        Utils.createNoMediaFile(AppConfig.VIDEO_COVER_CACHE_FOLDER);
+        FileUtils.createNoMediaFile(videoCoverCacheFolder);
     }
 
-//    private void initVideoCoverCache() {
-//        File file = new File(AppConfig.VIDEO_COVER_CACHE_FOLDER);
-//        FileUtils.createSDCardDir(AppConfig.VIDEO_COVER_CACHE_FOLDER);
-//
-//        try {
-//            mVideoCoverCache = DiskLruCache.open(file, Utils.getAppVersionCode(mContext), 1, 10 * 1024 * 1024);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    private void initVideoCoverCache() {
+        File file = new File(videoCoverCacheFolder);
+        FileUtils.makeDirs(videoCoverCacheFolder);
+
+        try {
+            mVideoCoverCache = DiskLruCache.open(file, 1000, 1, 10 * 1024 * 1024);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public int getCount() {
@@ -108,6 +129,7 @@ public class PhotoAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
         if (convertView == null) {
+
             convertView = mInflater.inflate(R.layout.item_photo_activity, parent, false);
             holder = new ViewHolder();
             holder.item_image = convertView.findViewById(R.id.item_image);
@@ -237,7 +259,44 @@ public class PhotoAdapter extends BaseAdapter {
                     holder.imvVideoMark.setVisibility(View.VISIBLE);
                     holder.tvVideoDuration.setVisibility(View.VISIBLE);
 
+                    holder.item_take_photo_image.setVisibility(View.GONE);
+                    holder.item_image.setVisibility(View.VISIBLE);
+                    holder.mSelect.setVisibility(View.GONE);
+                    holder.imvVideoMark.setVisibility(View.VISIBLE);
+                    holder.tvVideoDuration.setVisibility(View.VISIBLE);
+                    holder.tvVideoDuration.setText(DateUtils.formatVideoDuration(fileEntity.getDuration()));
 
+                    GetVideoFrameTask oldTask = (GetVideoFrameTask) holder.item_image.getTag();
+                    if (oldTask != null) {
+                        oldTask.cancel(true);
+                    }
+                    GetVideoFrameTask newTask = new GetVideoFrameTask(holder.item_image);
+                    newTask.execute(fileEntity);
+                    holder.item_image.setTag(newTask);
+
+                    String selectVideoPath = fileEntity.getPath();
+                    if (!selectVideoPath.startsWith("file://")) {
+                        selectVideoPath = "file://" + selectVideoPath;
+                    }
+
+                    holder.item_image.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (mSelectPath.size() > 0) {
+                                Toast.makeText(mContext, "不能同时选择图片和视频", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Message msg = new Message();
+                                msg.what = PhotoActivity.MSG_VIEW_VIDEO;
+                                if (isShowTakePhoto) {
+                                    msg.arg1 = position - 1;
+                                } else {
+                                    msg.arg1 = position;
+                                }
+                                msg.obj = fileEntity;
+                                handler.sendMessage(msg);
+                            }
+                        }
+                    });
 
                 }
             } catch (Exception e) {
@@ -287,6 +346,97 @@ public class PhotoAdapter extends BaseAdapter {
         TextView tvVideoDuration;
     }
 
+    class GetVideoFrameTask extends AsyncTask<FileEntity, Integer, String> {
+
+        private SimpleDraweeView simpleDraweeView;
+
+        public GetVideoFrameTask(SimpleDraweeView imageView) {
+            this.simpleDraweeView = imageView;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            simpleDraweeView.setImageURI((new Uri.Builder()).scheme("res").path(String.valueOf(R.drawable.pictures_no)).build());
+        }
+
+        @Override
+        protected String doInBackground(FileEntity... params) {
+            try {
+                String originThumbPath = getVideoCoverPath(params[0].getPath());
+                String key = hashKeyForDisk(originThumbPath);
+                String cacheFilePath = videoCoverCacheFolder + key + ".0";
+                if (!FileUtils.isFileExist(cacheFilePath)) {
+                    try {
+                        if (mVideoCoverCache != null) {
+                            DiskLruCache.Editor editor = null;
+                            editor = mVideoCoverCache.edit(key);
+                            if (editor != null) {
+                                OutputStream outputStream = editor.newOutputStream(0);
+                                Bitmap bitmap = getVideoThumbnail(Utils.getContext().getContentResolver(), params[0].getVideoId());
+                                if (bitmap != null) {
+                                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                                    outputStream.flush();
+                                    outputStream.close();
+                                    bitmap.recycle();
+                                    bitmap = null;
+                                    editor.commit();
+                                }
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return cacheFilePath;
+            } catch (Exception e) {
+                //如果使用Lru缓存报错，则改用原始的图片缓存方式。
+                String thumbPath = getVideoCoverPath(params[0].getPath());
+                if (!FileUtils.isFileExist(thumbPath)) {
+                    saveBitmap(getVideoThumbnail(Utils.getContext().getContentResolver(), params[0].getVideoId()), thumbPath);
+                }
+                return thumbPath;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String path) {
+            if (!TextUtils.isEmpty(path)) {
+                simpleDraweeView.setImageURI(Uri.parse("file://" + path));
+            }
+        }
+
+        public String hashKeyForDisk(String key) {
+            String cacheKey;
+            try {
+                final MessageDigest mDigest = MessageDigest.getInstance("MD5");
+                mDigest.update(key.getBytes());
+                cacheKey = bytesToHexString(mDigest.digest());
+            } catch (NoSuchAlgorithmException e) {
+                cacheKey = String.valueOf(key.hashCode());
+            }
+            return cacheKey;
+        }
+    }
+
+    private static final char[] DIGITS_LOWER = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+    private String bytesToHexString(byte[] var0) {
+        return var0 == null ? "" : bytesToHexString(var0, DIGITS_LOWER);
+    }
+
+    private String bytesToHexString(byte[] var0, char[] var1) {
+        int var2 = var0.length;
+        char[] var3 = new char[var2 << 1];
+        int var4 = 0;
+
+        for(int var5 = 0; var4 < var2; ++var4) {
+            var3[var5++] = var1[(240 & var0[var4]) >>> 4];
+            var3[var5++] = var1[15 & var0[var4]];
+        }
+
+        return new String(var3);
+    }
 
     /**
      * 关闭缓存
@@ -298,6 +448,67 @@ public class PhotoAdapter extends BaseAdapter {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public String getVideoCoverPath(String videoPath) {
+        String path =  videoCoverCacheFolder + new File(videoPath).getName().replace("mp4", "jpg");
+        FileUtils.makeDirs(videoCoverCacheFolder);
+        return path;
+    }
+
+    /**
+     * 获取视频缩略图
+     *
+     * @param cr
+     * @param videoId
+     * @return
+     */
+    public static Bitmap getVideoThumbnail(ContentResolver cr, long videoId) {
+        Bitmap bitmap = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inDither = false;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+//select condition.
+//via imageid get the bimap type thumbnail in thumbnail table.
+        bitmap = MediaStore.Video.Thumbnails.getThumbnail(cr, videoId,
+                MediaStore.Images.Thumbnails.MINI_KIND, options);
+        if (bitmap != null) {
+            LogUtils.d("thumnnail size width===>" + bitmap.getWidth() + "height====>" + bitmap.getHeight());
+        }
+        return bitmap;
+    }
+
+    /**
+     * 保存方法
+     */
+    public void saveBitmap(Bitmap bitmap, String path) {
+        saveBitmap(bitmap, path, true);
+    }
+
+    public void saveBitmap(Bitmap bitmap, String path, boolean recycle) {
+        if (bitmap == null) {
+            return;
+        }
+        File f = new File(path);
+        if (f.exists()) {
+            f.delete();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(f);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+            if (recycle) {
+                bitmap.recycle();
+            }
+            bitmap = null;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

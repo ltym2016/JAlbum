@@ -1,12 +1,17 @@
 package com.samluys.selectalbumdemo;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.samluys.jalbum.activity.PhotoActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.samluys.jalbum.JAlbum;
+import com.yanzhenjie.permission.Action;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.runtime.Permission;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,10 +23,33 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.tv_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
 
-                intent.putExtra("SELECTED_IMAGES_SIZE", 9);
-                startActivityForResult(intent, 11);
+                AndPermission.with(MainActivity.this)
+                        .runtime()
+                        .permission(Permission.READ_EXTERNAL_STORAGE,
+                                Permission.WRITE_EXTERNAL_STORAGE)
+                        .onGranted(new Action<List<String>>() {
+                            @Override
+                            public void onAction(List<String> data) {
+                                JAlbum.from(MainActivity.this)
+                                        .build()
+                                        .maxSelectNum(10)
+                                        .showGif(true)
+                                        .showTakePhoto(false)
+                                        .showVideoOnly(true)
+                                        .showVideo(true)
+                                        .forResult(111);
+                            }
+                        })
+                        .onDenied(new Action<List<String>>() {
+                            @Override
+                            public void onAction(List<String> data) {
+
+                            }
+                        })
+                        .start();
+
+
             }
         });
     }

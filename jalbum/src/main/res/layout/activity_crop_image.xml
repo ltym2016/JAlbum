@@ -57,7 +57,7 @@
 <!--            android:layout_alignParentBottom="true"/>-->
     </RelativeLayout>
 
-    <com.caiyu.lib_photo.view.crop.ClipImageLayout
+    <com.samluys.jalbum.view.crop.ClipImageLayout
         android:id="@+id/cil_crop"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
