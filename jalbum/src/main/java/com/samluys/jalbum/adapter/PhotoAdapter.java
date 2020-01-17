@@ -1,20 +1,15 @@
 package com.samluys.jalbum.adapter;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.samluys.jalbum.R;
 import com.samluys.jalbum.activity.FilePhotoSeeSelectedActivity;
@@ -33,17 +27,15 @@ import com.samluys.jalbum.activity.PhotoActivity;
 import com.samluys.jalbum.common.Constants;
 import com.samluys.jalbum.common.DiskLruCache;
 import com.samluys.jalbum.common.ImageLoader;
+import com.samluys.jalbum.common.Util;
 import com.samluys.jalbum.entity.FileEntity;
 import com.samluys.jutils.DateUtils;
 import com.samluys.jutils.FileUtils;
-import com.samluys.jutils.StringUtils;
 import com.samluys.jutils.ToastUtils;
 import com.samluys.jutils.Utils;
 import com.samluys.jutils.log.LogUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -51,7 +43,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 
 public class PhotoAdapter extends BaseAdapter {
@@ -338,7 +329,6 @@ public class PhotoAdapter extends BaseAdapter {
     }
 
     private class ViewHolder {
-        //        ImageView mImg;
         SimpleDraweeView item_image;
         ImageButton mSelect;
         SimpleDraweeView item_take_photo_image;
@@ -373,7 +363,7 @@ public class PhotoAdapter extends BaseAdapter {
                             editor = mVideoCoverCache.edit(key);
                             if (editor != null) {
                                 OutputStream outputStream = editor.newOutputStream(0);
-                                Bitmap bitmap = getVideoThumbnail(Utils.getContext().getContentResolver(), params[0].getVideoId());
+                                Bitmap bitmap = Util.getVideoThumbnail(Utils.getContext().getContentResolver(), params[0].getVideoId());
                                 if (bitmap != null) {
                                     bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
                                     outputStream.flush();
@@ -393,7 +383,7 @@ public class PhotoAdapter extends BaseAdapter {
                 //如果使用Lru缓存报错，则改用原始的图片缓存方式。
                 String thumbPath = getVideoCoverPath(params[0].getPath());
                 if (!FileUtils.isFileExist(thumbPath)) {
-                    saveBitmap(getVideoThumbnail(Utils.getContext().getContentResolver(), params[0].getVideoId()), thumbPath);
+                    Util.saveBitmap(Util.getVideoThumbnail(Utils.getContext().getContentResolver(), params[0].getVideoId()), thumbPath);
                 }
                 return thumbPath;
             }
@@ -411,7 +401,7 @@ public class PhotoAdapter extends BaseAdapter {
             try {
                 final MessageDigest mDigest = MessageDigest.getInstance("MD5");
                 mDigest.update(key.getBytes());
-                cacheKey = bytesToHexString(mDigest.digest());
+                cacheKey = Util.bytesToHexString(mDigest.digest());
             } catch (NoSuchAlgorithmException e) {
                 cacheKey = String.valueOf(key.hashCode());
             }
@@ -419,24 +409,7 @@ public class PhotoAdapter extends BaseAdapter {
         }
     }
 
-    private static final char[] DIGITS_LOWER = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-    private String bytesToHexString(byte[] var0) {
-        return var0 == null ? "" : bytesToHexString(var0, DIGITS_LOWER);
-    }
-
-    private String bytesToHexString(byte[] var0, char[] var1) {
-        int var2 = var0.length;
-        char[] var3 = new char[var2 << 1];
-        int var4 = 0;
-
-        for(int var5 = 0; var4 < var2; ++var4) {
-            var3[var5++] = var1[(240 & var0[var4]) >>> 4];
-            var3[var5++] = var1[15 & var0[var4]];
-        }
-
-        return new String(var3);
-    }
 
     /**
      * 关闭缓存
@@ -451,64 +424,10 @@ public class PhotoAdapter extends BaseAdapter {
         }
     }
 
-    public String getVideoCoverPath(String videoPath) {
+    private String getVideoCoverPath(String videoPath) {
         String path =  videoCoverCacheFolder + new File(videoPath).getName().replace("mp4", "jpg");
         FileUtils.makeDirs(videoCoverCacheFolder);
         return path;
     }
 
-    /**
-     * 获取视频缩略图
-     *
-     * @param cr
-     * @param videoId
-     * @return
-     */
-    public static Bitmap getVideoThumbnail(ContentResolver cr, long videoId) {
-        Bitmap bitmap = null;
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inDither = false;
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
-//select condition.
-//via imageid get the bimap type thumbnail in thumbnail table.
-        bitmap = MediaStore.Video.Thumbnails.getThumbnail(cr, videoId,
-                MediaStore.Images.Thumbnails.MINI_KIND, options);
-        if (bitmap != null) {
-            LogUtils.d("thumnnail size width===>" + bitmap.getWidth() + "height====>" + bitmap.getHeight());
-        }
-        return bitmap;
-    }
-
-    /**
-     * 保存方法
-     */
-    public void saveBitmap(Bitmap bitmap, String path) {
-        saveBitmap(bitmap, path, true);
-    }
-
-    public void saveBitmap(Bitmap bitmap, String path, boolean recycle) {
-        if (bitmap == null) {
-            return;
-        }
-        File f = new File(path);
-        if (f.exists()) {
-            f.delete();
-        }
-        try {
-            FileOutputStream out = new FileOutputStream(f);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            out.flush();
-            out.close();
-            if (recycle) {
-                bitmap.recycle();
-            }
-            bitmap = null;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

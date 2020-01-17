@@ -1,14 +1,24 @@
 package com.samluys.jalbum.common;
 
+import android.content.ContentResolver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.provider.MediaStore;
+
+import com.samluys.jutils.FileUtils;
+import com.samluys.jutils.log.LogUtils;
+
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 
 /** Junk drawer of utility methods. */
-final class Util {
+public class Util {
     static final Charset US_ASCII = Charset.forName("US-ASCII");
     static final Charset UTF_8 = Charset.forName("UTF-8");
 
@@ -57,5 +67,81 @@ final class Util {
             } catch (Exception ignored) {
             }
         }
+    }
+
+    /**
+     * 保存方法
+     */
+    public static void saveBitmap(Bitmap bitmap, String path) {
+        saveBitmap(bitmap, path, true);
+    }
+
+    public static void saveBitmap(Bitmap bitmap, String path, boolean recycle) {
+        if (bitmap == null) {
+            return;
+        }
+        File f = new File(path);
+        if (f.exists()) {
+            f.delete();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(f);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+            if (recycle) {
+                bitmap.recycle();
+            }
+            bitmap = null;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+    /**
+     * 获取视频缩略图
+     *
+     * @param cr
+     * @param videoId
+     * @return
+     */
+    public static Bitmap getVideoThumbnail(ContentResolver cr, long videoId) {
+        Bitmap bitmap = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inDither = false;
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        bitmap = MediaStore.Video.Thumbnails.getThumbnail(cr, videoId,
+                MediaStore.Images.Thumbnails.MINI_KIND, options);
+        if (bitmap != null) {
+            LogUtils.d("thumnnail size width===>" + bitmap.getWidth() + "height====>" + bitmap.getHeight());
+        }
+        return bitmap;
+    }
+
+    private static final char[] DIGITS_LOWER = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+    public static String bytesToHexString(byte[] var0) {
+        return var0 == null ? "" : bytesToHexString(var0, DIGITS_LOWER);
+    }
+
+    public static String bytesToHexString(byte[] var0, char[] var1) {
+        int var2 = var0.length;
+        char[] var3 = new char[var2 << 1];
+        int var4 = 0;
+
+        for(int var5 = 0; var4 < var2; ++var4) {
+            var3[var5++] = var1[(240 & var0[var4]) >>> 4];
+            var3[var5++] = var1[15 & var0[var4]];
+        }
+
+        return new String(var3);
     }
 }
