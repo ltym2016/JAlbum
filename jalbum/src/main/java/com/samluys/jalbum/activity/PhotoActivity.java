@@ -146,6 +146,10 @@ public class PhotoActivity extends AppCompatActivity {
                     takePhoto();
                     break;
                 case MSG_VIEW_VIDEO:
+                    FileEntity fileEntity = (FileEntity) msg.obj;
+                    Intent intent = new Intent(PhotoActivity.this, VideoActivity.class);
+                    intent.putExtra("video", fileEntity);
+                    startActivity(intent);
                     break;
 
                 default:

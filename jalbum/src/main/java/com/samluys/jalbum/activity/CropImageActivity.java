@@ -76,8 +76,8 @@ public class CropImageActivity extends AppCompatActivity {
 
     public void initData() {
         if (!TextUtils.isEmpty(mPath)) {
-            mBitmap = ImageUtils.getScaledBitmap(mPath, ScreenUtils.getScreenWidth(this),
-                    ScreenUtils.getScreenHeight(this));
+            mBitmap = ImageUtils.getScaledBitmap(mPath, ScreenUtils.getScreenWidth(),
+                    ScreenUtils.getScreenHeight());
             cil_crop.setImageBitmap(mBitmap);
         }
     }

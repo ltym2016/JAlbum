@@ -38,8 +38,8 @@ public class PreviewPhotoRVAdapter extends RecyclerView.Adapter<PreviewPhotoRVAd
             this.selectImageEntities = new ArrayList<>();
         }
 
-        screenWidth = ScreenUtils.getScreenWidth(mContext);
-        screenHeight = ScreenUtils.getScreenHeight(mContext);
+        screenWidth = ScreenUtils.getScreenWidth();
+        screenHeight = ScreenUtils.getScreenHeight();
     }
 
     public void setInfos(List<SelectImageEntity> infos) {
@@ -103,7 +103,7 @@ public class PreviewPhotoRVAdapter extends RecyclerView.Adapter<PreviewPhotoRVAd
             view_top = itemView.findViewById(R.id.view_top);
             view_biankuang = itemView.findViewById(R.id.view_biankuang);
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) simpleDraweeView.getLayoutParams();
-            int width = (int) (ScreenUtils.getScreenWidth(itemView.getContext()) * 0.144);
+            int width = (int) (ScreenUtils.getScreenWidth() * 0.144);
             params.width = width;
             params.height = width;
             simpleDraweeView.setLayoutParams(params);

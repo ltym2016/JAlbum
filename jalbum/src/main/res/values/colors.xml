@@ -7,4 +7,6 @@
     <color name="white">@android:color/white</color>
     <color name="color_theme">@android:color/holo_blue_bright</color>
     <color name="theme_background">@color/white</color>
+    <color name="color_commit_enabled">#44BF1A</color>
+    <color name="color_commit_unenabled">#999999</color>
 </resources>

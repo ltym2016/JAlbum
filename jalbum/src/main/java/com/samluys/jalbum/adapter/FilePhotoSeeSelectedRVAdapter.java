@@ -36,8 +36,8 @@ public class FilePhotoSeeSelectedRVAdapter extends RecyclerView.Adapter<FilePhot
             this.infos = new ArrayList<>();
         }
 
-        screenWidth = ScreenUtils.getScreenWidth(mContext);
-        screenHeight = ScreenUtils.getScreenHeight(mContext);
+        screenWidth = ScreenUtils.getScreenWidth();
+        screenHeight = ScreenUtils.getScreenHeight();
     }
 
     /**
@@ -100,7 +100,7 @@ public class FilePhotoSeeSelectedRVAdapter extends RecyclerView.Adapter<FilePhot
 
         public ViewHolder(View itemView) {
             super(itemView);
-            int screenWidth = ScreenUtils.getScreenWidth(itemView.getContext());
+            int screenWidth = ScreenUtils.getScreenWidth();
             simpleDraweeView = itemView.findViewById(R.id.simpleDraweeView);
             view_biankuang = itemView.findViewById(R.id.view_biankuang);
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) simpleDraweeView.getLayoutParams();

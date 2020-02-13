@@ -2,4 +2,17 @@
     <string name="app_name">lib_photo</string>
 
     <string name="add_image_tips">最多选择%1$s张图片</string>
+    <string name="edit_video_short_title">视频过短</string>
+    <string name="edit_video_short_detail">不能分享短于2s的视频</string>
+    <string name="edit_video_edit_video_title">编辑视频</string>
+    <string name="edit_video_edit_video_detail">只能分享10s内的视频，需进行编辑</string>
+    <string name="edit_video_big_title">视频过大</string>
+    <string name="edit_video_big_detail">不能分享超过1G的视频</string>
+    <string name="edit_video_ratio_title">特殊比例</string>
+    <string name="edit_video_ratio_detail">不能分享这种比例的视频</string>
+    <string name="edit_video_file_destory_title">文件损坏</string>
+    <string name="edit_video_file_destory_detail">文件已经损坏，无法上传</string>
+    <string name="edit_video_file_unsupport_type_title">特殊格式</string>
+    <string name="edit_video_file_unsupport_type_detail">不能分享这种格式的视频</string>
+
 </resources>

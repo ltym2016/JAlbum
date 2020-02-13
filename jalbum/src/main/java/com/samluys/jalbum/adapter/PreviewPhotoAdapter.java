@@ -49,8 +49,8 @@ public class PreviewPhotoAdapter extends PagerAdapter {
         ddefault_drawable = ContextCompat.getDrawable(mContext, R.drawable.preview_default);
         load_drawable = new AutoRotateDrawable(ContextCompat.getDrawable(mContext, R.drawable.loading_01), 1000);
         background_drawable = ContextCompat.getDrawable(mContext, R.color.black);
-        screenWidth = ScreenUtils.getScreenWidth(context);
-        screenHeight = ScreenUtils.getScreenHeight(context);
+        screenWidth = ScreenUtils.getScreenWidth();
+        screenHeight = ScreenUtils.getScreenHeight();
     }
 
     @Override
