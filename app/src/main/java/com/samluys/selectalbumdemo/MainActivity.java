@@ -46,8 +46,9 @@ public class MainActivity extends AppCompatActivity {
                                         .showGif(true)
                                         .showTakePhoto(false)
                                         .showVideoOnly(false)
-                                        .showVideo(false)
-                                        .forResult(PhotoActivity.REQUEST_CODE_SELECT_PHOTO);
+                                        .showVideo(true)
+                                        .setVideoMaxTime(20)
+                                        .forResult(PhotoActivity.REQUEST_CODE_SELECT_VIDEO);
                             }
                         })
                         .onDenied(new Action<List<String>>() {

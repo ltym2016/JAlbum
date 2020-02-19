@@ -53,6 +53,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+//import io.microshow.rxffmpeg.RxFFmpegInvoke;
+//import io.microshow.rxffmpeg.RxFFmpegSubscriber;
+
 import io.microshow.rxffmpeg.RxFFmpegInvoke;
 import io.microshow.rxffmpeg.RxFFmpegSubscriber;
 
@@ -94,7 +97,7 @@ public class VideoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video);
         mContext = this;
 
-        RxFFmpegInvoke.getInstance().setDebug(Utils.isDebug());
+//        RxFFmpegInvoke.getInstance().setDebug(Utils.isDebug());
         mHandler = new Handler();
         initView();
         fileEntity = getIntent().getParcelableExtra("video");
@@ -204,7 +207,7 @@ public class VideoActivity extends AppCompatActivity {
         String timeformat = formatTime((int) startTime/1000);
         LogUtils.e(timeformat + ":=:" + time);
         // 剪辑视频命令：ffmpeg -i in.mp4 -ss 00:00:00 -t 10 out.ts
-        String text = "ffmpeg -i "+orgPath+" -ss "+timeformat+" -t "+time+" " + newPath;
+        String text = "ffmpeg -i "+orgPath+" -ss "+timeformat+" -t "+time+" -vcodec copy " + newPath;
         String[] commands = text.split(" ");
         RxFFmpegInvoke.getInstance().runCommandRxJava(commands).subscribe(new RxFFmpegSubscriber() {
             @Override
