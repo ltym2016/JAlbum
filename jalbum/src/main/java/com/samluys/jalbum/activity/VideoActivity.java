@@ -56,6 +56,8 @@ import java.util.concurrent.Executors;
 import io.microshow.rxffmpeg.RxFFmpegInvoke;
 import io.microshow.rxffmpeg.RxFFmpegSubscriber;
 
+import static com.samluys.jalbum.activity.PhotoActivity.VIDEO_PATH;
+
 public class VideoActivity extends AppCompatActivity {
 
     Button btnCommit;
@@ -175,7 +177,7 @@ public class VideoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.putExtra("PATH", fileEntity.getPath());
+                intent.putExtra(VIDEO_PATH, fileEntity.getPath());
                 setResult(RESULT_OK, intent);
                 finish();
             }

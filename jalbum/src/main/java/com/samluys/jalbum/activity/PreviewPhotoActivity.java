@@ -49,7 +49,6 @@ public class PreviewPhotoActivity extends AppCompatActivity {
     private List<String> infos;
     private List<SelectImageEntity> mSelectImageEntites = new ArrayList<>();
     private int max_size;
-    private int select_size;
     private int selectPosition;
 
     @Override
@@ -82,7 +81,6 @@ public class PreviewPhotoActivity extends AppCompatActivity {
         try {
             infos = (List<String>) getIntent().getSerializableExtra("list");
             max_size = getIntent().getIntExtra("max_size", 0);
-            select_size = getIntent().getIntExtra("select_size", 0);
             if (infos == null && infos.isEmpty()) {
                 Toast.makeText(this, "图片不能为空哦", Toast.LENGTH_SHORT).show();
                 finish();
@@ -212,7 +210,7 @@ public class PreviewPhotoActivity extends AppCompatActivity {
      * @param maxSize    最大数量
      */
     private void setCommitText(int chooseSize, int maxSize) {
-        btn_commit.setText("完成(" + (chooseSize +select_size)+ "/" + maxSize + ")");
+        btn_commit.setText("完成(" + (chooseSize)+ "/" + maxSize + ")");
     }
 
     /**

@@ -7,8 +7,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.samluys.jalbum.activity.PhotoActivity;
+import com.samluys.jutils.FileUtils;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
  * @author luys
@@ -43,6 +45,7 @@ public final class JAlbum {
         return new JAlbum(activity);
     }
 
+
     /**
      * 在Fragment里面调用
      * @param fragment
@@ -60,6 +63,24 @@ public final class JAlbum {
     @Nullable
     Fragment getFragment() {
         return mFragment != null ? mFragment.get() : null;
+    }
+
+
+    /**
+     * 清除缓存
+     */
+    public static void clearCache() {
+        String path = FileUtils.getLocalCacheFilePath("video_image_cache");
+        FileUtils.deleteFile(path);
+    }
+
+
+    public static List<String> obtainPathResult(Intent data) {
+        return data.getStringArrayListExtra(PhotoActivity.IMAGE_LIST_PATH);
+    }
+
+    public static String obtainVideoPathResult(Intent data) {
+        return data.getStringExtra(PhotoActivity.VIDEO_PATH);
     }
 
     public Builder build() {

@@ -63,6 +63,9 @@ import java.util.Set;
 public class PhotoActivity extends AppCompatActivity {
 
 
+    public static final int REQUEST_CODE_SELECT_PHOTO = 998;
+    public static final int REQUEST_CODE_SELECT_VIDEO = 999;
+
     private static final int DATA_LOADED = 0X110;
     public static final int CHANGE_NUM = 5678;
 
@@ -81,6 +84,9 @@ public class PhotoActivity extends AppCompatActivity {
     private boolean mIsShowGif = true;
     private long maxVideoSize = 0;//视频的大小限制，默认0 不限制
     private String mCurrentPhotoPath;
+
+    public static final String VIDEO_PATH = "video_path";
+    public static final String IMAGE_LIST_PATH = "image_list_path";
 
     private Handler handler = new Handler() {
         @Override
@@ -119,11 +125,8 @@ public class PhotoActivity extends AppCompatActivity {
     private List<FileEntity> allImageFile = new ArrayList<>();
     private ArrayList<FileEntity> allVideoFile = new ArrayList<>();
     private List<FileEntity> allFile = new ArrayList<>();
-    public static List<String> selectImages = new ArrayList<>();// 当前选择的图片
-    private List<String> mSelectedImages;// 之前已经选择的图片
-    private int mSelectedImageSize;
-    private boolean mIsCanRepeatSelect;
-
+    public static ArrayList<String> selectImages = new ArrayList<>();// 当前选择的图片
+    private List<String> mSelectedImages;// 已经选择的图片
     private int allpicSize = 0;
 
     private ProgressDialog mProgressDialog;
@@ -187,18 +190,10 @@ public class PhotoActivity extends AppCompatActivity {
         mIsShowGif = mSelectionConfig.showGif;
         mIsShowVideo = mSelectionConfig.showVideo;
         mIsShowVideoOnly = mSelectionConfig.showVideoOnly;
-        mSelectedImages = getIntent().getStringArrayListExtra("SELECTED_IMAGES");
-        mSelectedImageSize = getIntent().getIntExtra("SELECTED_IMAGES_SIZE", 0);
         mIsShowTakePhoto = mSelectionConfig.showTakePhoto;
-        mIsCanRepeatSelect = getIntent().getBooleanExtra("IS_CAN_REPEAT_SELECT", true);
         selectImages.clear();
 
-        if (mSelectedImages != null) {
-            selectImages.addAll(mSelectedImages);
-        } else {
-            mSelectedImages = new ArrayList<>();
-        }
-
+        mSelectedImages = new ArrayList<>();
         if (mPhotoNum == -1) {
             mPhotoNum = 9;
         }
@@ -230,9 +225,7 @@ public class PhotoActivity extends AppCompatActivity {
                                 "allimgs", mImgPaths,
                                 mHandler, PhotoActivity.this,
                                 mPhotoNum,
-                                mIsShowTakePhoto,
-                                mIsCanRepeatSelect,
-                                mSelectedImageSize);
+                                mIsShowTakePhoto);
                         adapter.setAllImage(allImageFile);
                     } else if (folderBean.getName().equals("所有视频")) {
                         adapter = new PhotoAdapter(PhotoActivity.this, allVideoFile,
@@ -241,9 +234,7 @@ public class PhotoActivity extends AppCompatActivity {
                                 mHandler,
                                 PhotoActivity.this,
                                 mPhotoNum,
-                                mIsShowTakePhoto,
-                                mIsCanRepeatSelect,
-                                mSelectedImageSize);
+                                mIsShowTakePhoto);
                     } else {
                         mCurrentDir = new File(folderBean.getDir());
                         mImgs = Arrays.asList(mCurrentDir.list(new FilenameFilter() {
@@ -272,9 +263,7 @@ public class PhotoActivity extends AppCompatActivity {
                                 mCurrentDir.getAbsolutePath(), mImgPaths, mHandler,
                                 PhotoActivity.this,
                                 mPhotoNum,
-                                mIsShowTakePhoto,
-                                mIsCanRepeatSelect,
-                                mSelectedImageSize);
+                                mIsShowTakePhoto);
                     }
                     mGridView.setAdapter(adapter);
                     mDirname.setText("" + folderBean.getName());
@@ -315,9 +304,7 @@ public class PhotoActivity extends AppCompatActivity {
 
         adapter = new PhotoAdapter(this, allFile, "allimgs",
                 mImgPaths, mHandler, PhotoActivity.this,
-                mPhotoNum, mIsShowTakePhoto,
-                mIsCanRepeatSelect,
-                mSelectedImageSize);
+                mPhotoNum, mIsShowTakePhoto);
         adapter.setAllImage(allImageFile);
         mGridView.setAdapter(adapter);
         mDirname.setText("" + mFolderBeans.get(0).getName());
@@ -333,7 +320,7 @@ public class PhotoActivity extends AppCompatActivity {
         if (num > 0) {
             tv_yulan.setEnabled(true);
             btn_commit.setEnabled(true);
-            btn_commit.setText("完成(" + (num+mSelectedImageSize) + "/" + mPhotoNum + ")");
+            btn_commit.setText("完成(" + (num) + "/" + mPhotoNum + ")");
         } else {
             btn_commit.setEnabled(false);
             tv_yulan.setEnabled(false);
@@ -343,21 +330,10 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     private void setCommitText() {
-//        int size = 0;
-//        try {
-//            size = adapter.getmSelectPath().size();
-//        } catch (Exception e) {
-//            size = 0;
-//        }
-        if (mSelectedImageSize > 0) {
-            btn_commit.setEnabled(true);
-            tv_yulan.setEnabled(true);
-            btn_commit.setText("完成(" + mSelectedImageSize + "/" + mPhotoNum + ")");
-        } else {
-            btn_commit.setEnabled(false);
-            btn_commit.setText("完成");
-            tv_yulan.setEnabled(false);
-        }
+
+        btn_commit.setEnabled(false);
+        btn_commit.setText("完成");
+        tv_yulan.setEnabled(false);
     }
 
 
@@ -417,37 +393,23 @@ public class PhotoActivity extends AppCompatActivity {
                 Intent intent = new Intent(PhotoActivity.this, PreviewPhotoActivity.class);
                 intent.putExtra("list", (Serializable) adapter.getmSelectPath());
                 intent.putExtra("max_size", mPhotoNum);
-                intent.putExtra("select_size", mSelectedImageSize);
                 startActivityForResult(intent, SELECTPHOTO);
             }
         });
     }
 
     private void commit() {
-        if (mIsCanRepeatSelect) {
-            getSelectImages().clear();
-            getSelectImages().addAll(adapter.getmSelectPath());
-        } else {
-            for (int i = 0; i < adapter.getmSelectPath().size(); i++) {
-                if (!getSelectImages().contains(adapter.getmSelectPath().get(i))) {
-                    getSelectImages().add(adapter.getmSelectPath().get(i));
-                }
-            }
-
-            for (int i = getSelectImages().size() - 1; i >= 0; i--) {
-                if (!adapter.getmSelectPath().contains(getSelectImages().get(i))) {
-                    getSelectImages().remove(i);
-                }
-            }
-        }
+        getSelectImages().clear();
+        getSelectImages().addAll(adapter.getmSelectPath());
     }
 
     private void commitAndFinish() {
 
         commit();
-        PhotoActivity.this.setResult(RESULT_OK);
-
-        PhotoActivity.this.finish();
+        Intent data = new Intent();
+        data.putStringArrayListExtra(IMAGE_LIST_PATH,getSelectImages());
+        setResult(RESULT_OK, data);
+        finish();
     }
 
 
@@ -492,7 +454,7 @@ public class PhotoActivity extends AppCompatActivity {
                 finish();
             } else if (requestCode == REQUEST_CODE_VIDEO) {
                 if (data != null) {
-                    String path = data.getStringExtra("PATH");
+                    String path = data.getStringExtra(VIDEO_PATH);
                     Intent intent = new Intent();
                     intent.putExtra("PATH", path);
                     setResult(RESULT_OK, intent);
@@ -756,7 +718,7 @@ public class PhotoActivity extends AppCompatActivity {
         PhotoActivity.imagePathInPhone = imagePathInPhone;
     }
 
-    public static List<String> getSelectImages() {
+    public static ArrayList<String> getSelectImages() {
         return selectImages;
     }
 

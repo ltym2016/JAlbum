@@ -9,22 +9,26 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.samluys.jalbum.JAlbum;
-import com.samluys.jutils.log.LogUtils;
+import com.samluys.jalbum.activity.PhotoActivity;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView textView;
 
+    private List<String> selectImages;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        selectImages = new ArrayList<>();
         findViewById(R.id.tv_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,13 +42,12 @@ public class MainActivity extends AppCompatActivity {
                             public void onAction(List<String> data) {
                                 JAlbum.from(MainActivity.this)
                                         .build()
-                                        .maxSelectNum(10)
+                                        .maxSelectNum(10 - selectImages.size())
                                         .showGif(true)
                                         .showTakePhoto(false)
-                                        .showVideoOnly(true)
-                                        .showVideo(true)
-                                        .setVideoMaxTime(20)
-                                        .forResult(111);
+                                        .showVideoOnly(false)
+                                        .showVideo(false)
+                                        .forResult(PhotoActivity.REQUEST_CODE_SELECT_PHOTO);
                             }
                         })
                         .onDenied(new Action<List<String>>() {
@@ -66,14 +69,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 111) {
+        if (requestCode == PhotoActivity.REQUEST_CODE_SELECT_PHOTO) {
             if (data != null) {
-                String path = data.getStringExtra("PATH");
+                List<String> list = JAlbum.obtainPathResult(data);
 
-                LogUtils.e("返回的路径 ：" + path);
+                selectImages.addAll(list);
 
-                textView.setText("返回的视频路径 ：" +  path);
+                textView.setText("返回的路径 ：" +  selectImages.toString());
+            }
+        } else if (requestCode == PhotoActivity.REQUEST_CODE_SELECT_VIDEO) {
+            if (data != null) {
+                String videoPath = JAlbum.obtainVideoPathResult(data);
+                textView.setText("返回的视频路径 ：" +  videoPath);
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        JAlbum.clearCache();
     }
 }

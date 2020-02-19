@@ -57,16 +57,14 @@ public class PhotoAdapter extends BaseAdapter {
     private Activity activity;
     private boolean isShowTakePhoto = true;
     private DiskLruCache mVideoCoverCache;
-    private boolean isCanRepeatSelect;
     private int itemWidth;
-    private int mSelectSize;
     private String videoCoverCacheFolder;
     // 当前正在选择
     private List<String> mChoosingPath = new ArrayList<>();
 
     public PhotoAdapter(Context context, List<FileEntity> mDatas, String dirpath,
                         List<String> mSelectPath, Handler handler, Activity activity,
-                        int maxNum,  boolean showTakePhoto, boolean isCanRepeatSelect, int selectSize) {
+                        int maxNum,  boolean showTakePhoto) {
         this.mContext = context;
         this.handler = handler;
         this.mDitPath = dirpath;
@@ -74,8 +72,6 @@ public class PhotoAdapter extends BaseAdapter {
         this.maxNum = maxNum;
         this.activity = activity;
         this.isShowTakePhoto = showTakePhoto;
-        this.isCanRepeatSelect = isCanRepeatSelect;
-        this.mSelectSize = selectSize;
         if (mSelectPath != null) {
             this.mSelectPath = mSelectPath;
         }
@@ -181,7 +177,7 @@ public class PhotoAdapter extends BaseAdapter {
                     holder.mSelect.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            int size = mSelectPath.size() + mSelectSize;
+                            int size = mSelectPath.size();
                             //已经被选择
                             if (mSelectPath.contains(finalFilePath)) {
 
@@ -236,7 +232,6 @@ public class PhotoAdapter extends BaseAdapter {
                                 }
                             }
                             intent.putExtra("max_size", maxNum);
-                            intent.putExtra("select_size", mSelectSize);
                             intent.putExtra("dirpath", "" + mDitPath);
                             intent.putExtra("selectimage", (Serializable) mSelectPath);
                             PhotoActivity.setImagePathInPhone(getImagePath(mFileEntitys));//这里这么写是防止图片数量过多，导致intent传递的数据量过大导致奔溃。
