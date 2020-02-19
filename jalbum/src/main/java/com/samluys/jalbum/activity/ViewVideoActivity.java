@@ -33,6 +33,7 @@ import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.samluys.jalbum.R;
+import com.samluys.jalbum.SelectionConfig;
 import com.samluys.jalbum.entity.FileEntity;
 import com.samluys.jalbum.view.FixedViewPager;
 import com.samluys.jalbum.view.PhotoDraweeView;
@@ -130,7 +131,7 @@ public class ViewVideoActivity extends AppCompatActivity implements ViewPager.On
     private boolean checkVideoDuration(int position) {
 //        LogUtils.d("media duration====>"+VideoUtil.getDuration(allVideoFile.get(position).getPath()));
         long duration = allVideoFile.get(position).getDuration();
-        int limitDurationMax = 10;
+        int limitDurationMax = SelectionConfig.getInstance().maxVideoTime;
         if (duration < LIMIT_DURATION_MIN * 1000) {
             tvEdit.setVisibility(View.GONE);
             tvEditRight.setVisibility(View.GONE);

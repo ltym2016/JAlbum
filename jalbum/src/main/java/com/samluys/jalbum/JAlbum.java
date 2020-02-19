@@ -128,6 +128,16 @@ public final class JAlbum {
             return this;
         }
 
+        /**
+         * 设置视频最大剪辑时间
+         * @param maxVideoTime
+         * @return
+         */
+        public Builder setVideoMaxTime(int maxVideoTime) {
+            mSelectionConfig.maxVideoTime = maxVideoTime;
+            return this;
+        }
+
         public void forResult(int requestCode) {
             if (mActivity == null) {
                 return;

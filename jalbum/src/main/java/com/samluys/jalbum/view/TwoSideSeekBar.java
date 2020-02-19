@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 
 import com.samluys.jalbum.R;
+import com.samluys.jalbum.SelectionConfig;
 import com.samluys.jutils.log.LogUtils;
 
 
@@ -89,7 +90,7 @@ public class TwoSideSeekBar extends View {
         mContext = getContext();
         mBitmapLeftArrow = BitmapFactory.decodeResource(getResources(), R.drawable.ic_video_arrow);
         mBitmapRightArrow = BitmapFactory.decodeResource(getResources(), R.drawable.ic_video_arrow);
-        int maxDuration = 10;
+        int maxDuration = SelectionConfig.getInstance().maxVideoTime;
         if (maxDuration > 0) {
             mDefaultTotalDuration = maxDuration;
             mTotalDuration = mDefaultTotalDuration;

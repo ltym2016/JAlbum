@@ -70,6 +70,7 @@ public class PhotoActivity extends AppCompatActivity {
     private static final int SELECTPHOTO = 527;
     // 调系统相机
     private static final int REQUEST_CODE_TAKE_PICTURE = 1001;
+    private static final int REQUEST_CODE_VIDEO = 1002;
 
     private static final int MSG_FINISH = 666;
     private SelectionConfig mSelectionConfig;
@@ -149,7 +150,7 @@ public class PhotoActivity extends AppCompatActivity {
                     FileEntity fileEntity = (FileEntity) msg.obj;
                     Intent intent = new Intent(PhotoActivity.this, VideoActivity.class);
                     intent.putExtra("video", fileEntity);
-                    startActivity(intent);
+                    startActivityForResult(intent,REQUEST_CODE_VIDEO);
                     break;
 
                 default:
@@ -489,6 +490,14 @@ public class PhotoActivity extends AppCompatActivity {
                 intent.putExtra("take_photo", mCurrentPhotoPath);
                 setResult(RESULT_OK, intent);
                 finish();
+            } else if (requestCode == REQUEST_CODE_VIDEO) {
+                if (data != null) {
+                    String path = data.getStringExtra("PATH");
+                    Intent intent = new Intent();
+                    intent.putExtra("PATH", path);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
             }
     }
 
@@ -750,4 +759,5 @@ public class PhotoActivity extends AppCompatActivity {
     public static List<String> getSelectImages() {
         return selectImages;
     }
+
 }

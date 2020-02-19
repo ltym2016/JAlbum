@@ -3,7 +3,8 @@
     package="com.samluys.jalbum">
 
     <application>
-        <activity android:name=".activity.VideoActivity"></activity>
+        <activity android:name=".activity.VideoActivity"
+            android:theme="@style/MyTheme"/>
         <activity
             android:name=".activity.PreviewPhotoActivity"
             android:screenOrientation="portrait" />

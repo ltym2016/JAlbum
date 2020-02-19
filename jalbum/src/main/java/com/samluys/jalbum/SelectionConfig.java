@@ -13,6 +13,7 @@ public class SelectionConfig {
     public boolean showVideo = false;
     public boolean showTakePhoto = true;
     public boolean showVideoOnly = false;
+    public int maxVideoTime = 10;
 
     private SelectionConfig() {
 
