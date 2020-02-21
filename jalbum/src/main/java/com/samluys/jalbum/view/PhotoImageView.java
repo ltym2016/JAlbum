@@ -17,7 +17,6 @@ import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.samluys.jalbum.common.Constants;
-import com.samluys.jutils.log.LogUtils;
 
 import java.io.File;
 
@@ -64,7 +63,6 @@ public class PhotoImageView extends RelativeLayout {
         if (url.startsWith(Constants.FILE_PREX)) {
             url = url.replace(Constants.FILE_PREX, "");
         }
-        LogUtils.d("imagePath===>" + url);
         if (url.startsWith("/storage/") || url.startsWith("/data")) {
             uri = Uri.parse(Constants.FILE_PREX + getContext().getPackageName() + "/" + url);
         } else {
@@ -84,7 +82,6 @@ public class PhotoImageView extends RelativeLayout {
                     @Override
                     public void onFinalImageSet(String id, ImageInfo imageInfo, Animatable animatable) {
                         super.onFinalImageSet(id, imageInfo, animatable);
-                        LogUtils.d("animatable---->" + animatable);
                         Log.d("image", "width====>" + imageInfo.getWidth() + "height====>" + imageInfo.getHeight());
                         photoDraweeView.update(imageInfo.getWidth(), imageInfo.getHeight());
                         if (mOnFileReadyListener != null) {

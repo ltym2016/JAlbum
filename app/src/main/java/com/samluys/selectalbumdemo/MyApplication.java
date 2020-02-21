@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.samluys.jutils.Utils;
-import com.samluys.jutils.log.LogUtils;
 
 /**
  * @author luys
@@ -19,12 +18,7 @@ public class MyApplication extends Application {
         super.onCreate();
 
 
-        Utils.init(this);
 
-        LogUtils.newBuilder()
-                .debug(Utils.isDebug())
-                .tag("CIRCLE_DIMENSION_LOG")
-                .build();
 
         Fresco.initialize(this);
     }

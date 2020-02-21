@@ -5,8 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.provider.MediaStore;
 
-import com.samluys.jutils.FileUtils;
-import com.samluys.jutils.log.LogUtils;
 
 import java.io.Closeable;
 import java.io.File;
@@ -120,9 +118,7 @@ public class Util {
         options.inPreferredConfig = Bitmap.Config.RGB_565;
         bitmap = MediaStore.Video.Thumbnails.getThumbnail(cr, videoId,
                 MediaStore.Images.Thumbnails.MINI_KIND, options);
-        if (bitmap != null) {
-            LogUtils.d("thumnnail size width===>" + bitmap.getWidth() + "height====>" + bitmap.getHeight());
-        }
+
         return bitmap;
     }
 

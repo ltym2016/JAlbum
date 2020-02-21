@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +22,6 @@ import com.samluys.jutils.BitmapUtils;
 import com.samluys.jutils.FileUtils;
 import com.samluys.jutils.ImageUtils;
 import com.samluys.jutils.ScreenUtils;
-import com.samluys.jutils.ToastUtils;
 import com.samluys.statusbar.StatusBarUtils;
 
 import java.io.File;
@@ -113,7 +113,7 @@ public class CropImageActivity extends AppCompatActivity {
                 finish();
             } catch (IOException e) {
                 e.printStackTrace();
-                ToastUtils.showLong("裁剪图片失败");
+                Toast.makeText(this, "裁剪图片失败", Toast.LENGTH_LONG).show();
             }
         }
     }

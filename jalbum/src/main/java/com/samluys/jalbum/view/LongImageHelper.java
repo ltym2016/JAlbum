@@ -12,7 +12,6 @@ import com.facebook.imagepipeline.cache.DefaultCacheKeyFactory;
 import com.facebook.imagepipeline.core.ImagePipelineFactory;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.samluys.jutils.ImageUtils;
-import com.samluys.jutils.log.LogUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -87,7 +86,6 @@ public class LongImageHelper {
      * @param photoLoadingView
      */
     private void loadLocalLongImage(final Context context, final IntensifyImageView intensifyImage, final String path, final PhotoLoadingView photoLoadingView) {
-        LogUtils.d("加载本地长图");
         if (isGif(path)) {
             return;
         }

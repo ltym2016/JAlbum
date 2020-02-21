@@ -38,9 +38,7 @@ import com.samluys.jalbum.common.Constants;
 import com.samluys.jalbum.entity.FileEntity;
 import com.samluys.jalbum.entity.FolderBean;
 import com.samluys.jutils.FileUtils;
-import com.samluys.jutils.ToastUtils;
 import com.samluys.jutils.Utils;
-import com.samluys.jutils.log.LogUtils;
 import com.samluys.statusbar.StatusBarUtils;
 
 import java.io.File;
@@ -94,7 +92,7 @@ public class PhotoActivity extends AppCompatActivity {
             super.handleMessage(msg);
             if (msg.what == MSG_FINISH) {
                 mProgressDialog.dismiss();
-                ToastUtils.showLong("请检查是否拥有读取SD卡权限");
+                Toast.makeText(PhotoActivity.this, "请检查是否拥有读取SD卡权限", Toast.LENGTH_LONG).show();
                 finish();
             }
         }
@@ -167,6 +165,8 @@ public class PhotoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_photo);
+
+        Utils.init(this.getApplicationContext());
         StatusBarUtils.StatusBarIconDark(this);
         initView();
         initEvent();
@@ -279,7 +279,7 @@ public class PhotoActivity extends AppCompatActivity {
      */
     private void data2View() {
         if ((allImageFile.isEmpty() || allpicSize == 0) && allVideoFile.isEmpty()) {
-            ToastUtils.showLong("未扫描到任何图片");
+            Toast.makeText(PhotoActivity.this, "未扫描到任何图片", Toast.LENGTH_LONG).show();
         }
         if (!allImageFile.isEmpty()) {
             mFolderBeans.get(0).setFirstImgPath(allImageFile.get(0).getPath());
@@ -316,7 +316,6 @@ public class PhotoActivity extends AppCompatActivity {
      * @param num
      */
     private void setCommitText(int num) {
-        LogUtils.e("setCommitText", "num==>" + num);
         if (num > 0) {
             tv_yulan.setEnabled(true);
             btn_commit.setEnabled(true);
@@ -418,11 +417,9 @@ public class PhotoActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
             if (requestCode == SELECTPHOTO) {//预览图片后返回
                 try {
-                    LogUtils.e("onActivityResult", "SELECTPHOTO");
                     List<String> infos = (List<String>) data.getSerializableExtra("list");
                     if (infos != null) {
                         int size = infos.size();
-                        LogUtils.e("SELECTPHOTO", "size==>" + size);
                         adapter.setmSelectPath(infos);
                         setCommitText(size);
                         boolean shouldCommit = data.getBooleanExtra("should_commit", true);
@@ -434,10 +431,8 @@ public class PhotoActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             } else if (requestCode == 888) {
-                LogUtils.e("onActivityResult", "888");
                 boolean close = data.getBooleanExtra("close", false);
                 List<String> paths = data.getStringArrayListExtra("simage");
-                LogUtils.e("888", "close==>" + close);
                 if (close) {
                     adapter.setmSelectPath(paths);
                     commitAndFinish();
@@ -446,8 +441,6 @@ public class PhotoActivity extends AppCompatActivity {
                     adapter.setmSelectPath(paths);
                 }
             } else if (requestCode == REQUEST_CODE_TAKE_PICTURE) {
-                LogUtils.e("mCurrentPhotoPath : " + mCurrentPhotoPath);
-
                 Intent intent = new Intent();
                 intent.putExtra("take_photo", mCurrentPhotoPath);
                 setResult(RESULT_OK, intent);
@@ -488,7 +481,7 @@ public class PhotoActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     mProgressDialog.dismiss();
-                    ToastUtils.showLong("请检查是否拥有读取SD卡权限");
+                    Toast.makeText(PhotoActivity.this, "请检查是否拥有读取SD卡权限", Toast.LENGTH_LONG).show();
                     finish();
                 }
             });
@@ -558,7 +551,6 @@ public class PhotoActivity extends AppCompatActivity {
 
             if (picSize > mMaxCount) {
                 mMaxCount = picSize;
-                LogUtils.e("picSize", "picSize==>" + picSize + "==" + parentFile.list().length);
                 mCurrentDir = parentFile;
             }
 
@@ -590,7 +582,7 @@ public class PhotoActivity extends AppCompatActivity {
                     if (mProgressDialog != null && mProgressDialog.isShowing()) {
                         mProgressDialog.dismiss();
                     }
-                    ToastUtils.showLong("请检查是否拥有读取SD卡权限");
+                    Toast.makeText(PhotoActivity.this, "请检查是否拥有读取SD卡权限", Toast.LENGTH_LONG).show();
                     finish();
                 }
             });
@@ -606,8 +598,6 @@ public class PhotoActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(path) || new File(path).length() <= 0) {
                     continue;
                 }
-                LogUtils.d("video path====>" + path);
-                LogUtils.d("video size====>" + size + " video path====>" + path);
                 FileEntity fileEntity = new FileEntity();
                 fileEntity.setPath(path);
                 fileEntity.setDateTaken(dateTaken);

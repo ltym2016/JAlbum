@@ -39,9 +39,7 @@ import com.samluys.jalbum.view.FixedViewPager;
 import com.samluys.jalbum.view.PhotoDraweeView;
 import com.samluys.jutils.FileUtils;
 import com.samluys.jutils.ScreenUtils;
-import com.samluys.jutils.StringUtils;
 import com.samluys.jutils.Utils;
-import com.samluys.jutils.log.LogUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -129,7 +127,6 @@ public class ViewVideoActivity extends AppCompatActivity implements ViewPager.On
      * @param position
      */
     private boolean checkVideoDuration(int position) {
-//        LogUtils.d("media duration====>"+VideoUtil.getDuration(allVideoFile.get(position).getPath()));
         long duration = allVideoFile.get(position).getDuration();
         int limitDurationMax = SelectionConfig.getInstance().maxVideoTime;
         if (duration < LIMIT_DURATION_MIN * 1000) {
@@ -210,7 +207,6 @@ public class ViewVideoActivity extends AppCompatActivity implements ViewPager.On
                 MediaFormat mediaFormat = extractor.getTrackFormat(i);
                 String format = mediaFormat.getString(MediaFormat.KEY_MIME);
                 if (format.contains("video")) {
-                    LogUtils.d("mediaformat===>" + mediaFormat.getString(MediaFormat.KEY_MIME));
                     if (!format.contains("avc") && !format.contains("hevc") && !format.contains("mp4v-es")) {
                         tvEdit.setVisibility(View.GONE);
                         tvEditRight.setVisibility(View.GONE);

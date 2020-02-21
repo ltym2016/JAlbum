@@ -37,16 +37,12 @@ import com.samluys.jalbum.entity.VideoImageEntity;
 import com.samluys.jalbum.view.TextureVideoView;
 import com.samluys.jalbum.view.TwoSideSeekBar;
 import com.samluys.jutils.BitmapUtils;
-import com.samluys.jutils.DateUtils;
 import com.samluys.jutils.FileUtils;
 import com.samluys.jutils.ScreenUtils;
-import com.samluys.jutils.Utils;
-import com.samluys.jutils.log.LogUtils;
 import com.samluys.statusbar.StatusBarUtils;
 import com.samluys.uibutton.UIButton;
 
 import java.io.File;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +109,6 @@ public class VideoActivity extends AppCompatActivity {
                 mVideoWidth = bitmap.getWidth();
                 mVideoHeight = bitmap.getHeight();
 
-                LogUtils.e("bitmap", "mVideoWidth " + mVideoWidth + " mVideoHeight " + mVideoHeight);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -205,7 +200,6 @@ public class VideoActivity extends AppCompatActivity {
         int time = Math.round(selectTime);
         // 剪辑的起始时间
         String timeformat = formatTime((int) startTime/1000);
-        LogUtils.e(timeformat + ":=:" + time);
         // 剪辑视频命令：ffmpeg -i in.mp4 -ss 00:00:00 -t 10 out.ts
         String text = "ffmpeg -i "+orgPath+" -ss "+timeformat+" -t "+time+" -vcodec copy " + newPath;
         String[] commands = text.split(" ");
@@ -215,7 +209,6 @@ public class VideoActivity extends AppCompatActivity {
                 if (mProgressDialog != null) {
                     mProgressDialog.cancel();
                 }
-                LogUtils.e("处理成功");
 
                 Intent intent = new Intent();
                 intent.putExtra("PATH", newPath);
@@ -237,7 +230,6 @@ public class VideoActivity extends AppCompatActivity {
                 if (mProgressDialog != null) {
                     mProgressDialog.cancel();
                 }
-                LogUtils.e("已取消");
             }
 
             @Override
@@ -245,7 +237,6 @@ public class VideoActivity extends AppCompatActivity {
                 if (mProgressDialog != null) {
                     mProgressDialog.cancel();
                 }
-                LogUtils.e("出错了 onError：" + message);
             }
         });
     }
@@ -274,7 +265,6 @@ public class VideoActivity extends AppCompatActivity {
             lp.width = screenWidth;
             lp.height = (int) ((float) screenWidth * ((float) mVideoHeight / mVideoWidth));
         }
-        LogUtils.e("video", "targetWidth=====>" + lp.width + "targetHeight======>" + lp.height);
         videoView.setLayoutParams(lp);
         videoView.setVideoPath(fileEntity.getPath());
         videoView.start();
@@ -357,7 +347,6 @@ public class VideoActivity extends AppCompatActivity {
                 long cropTime = seekBar.getCropTime();
                 float selectTime =  (float)cropTime/1000;
                 tv_select_time.setText("已选取"+Math.round(selectTime)+"秒");
-                LogUtils.e(cropTime +"==="+ startTime);
             }
 
             @Override

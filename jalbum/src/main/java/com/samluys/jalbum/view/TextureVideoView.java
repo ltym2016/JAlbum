@@ -21,8 +21,6 @@ import android.view.TextureView;
 import android.widget.Toast;
 
 import com.samluys.jalbum.BuildConfig;
-import com.samluys.jutils.StringUtils;
-import com.samluys.jutils.log.LogUtils;
 
 import java.io.IOException;
 
@@ -221,7 +219,6 @@ public class TextureVideoView extends ScalableTextureView
             mMediaPlayer.setSurface(mSurface);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.prepareAsync();
-            LogUtils.d("msoundmute:" + mSoundMute);
             if (mSoundMute) {
                 mMediaPlayer.setVolume(0, 0);
             }
@@ -480,7 +477,6 @@ public class TextureVideoView extends ScalableTextureView
     public void onPrepared(final MediaPlayer mp) {
         if (SHOW_LOGS) Log.i(TAG, "onPrepared " + mUri.toString());
         if (mTargetState != STATE_PREPARING || mCurrentState != STATE_PREPARING) {
-            LogUtils.d("media error ------> 未准备好");
             return;
         }
 

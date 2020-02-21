@@ -18,7 +18,6 @@ import android.view.animation.LinearInterpolator;
 
 import com.samluys.jalbum.R;
 import com.samluys.jalbum.SelectionConfig;
-import com.samluys.jutils.log.LogUtils;
 
 
 /**
@@ -371,7 +370,6 @@ public class TwoSideSeekBar extends View {
             this.mDurationPerGrid = mTotalDuration * 1000 / 10;
         } else {
             mDurationPerGrid = (int) ((float) mDefaultTotalDuration * 1000 / 10);
-            LogUtils.d("mDefaultTotalDuration=====>" + mDefaultTotalDuration + "mDurationPerGrid====>" + mDurationPerGrid);
         }
     }
 
@@ -384,7 +382,6 @@ public class TwoSideSeekBar extends View {
             this.mDurationPerGrid = mTotalDuration * 1000 / 10;
         } else {
             mDurationPerGrid = (int) ((float) mDefaultTotalDuration * 1000 / 10);
-            LogUtils.d("mDefaultTotalDuration=====>" + mDefaultTotalDuration + "mDurationPerGrid====>" + mDurationPerGrid);
         }
     }
 

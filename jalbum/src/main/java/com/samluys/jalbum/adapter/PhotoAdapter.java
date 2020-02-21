@@ -31,9 +31,7 @@ import com.samluys.jalbum.common.Util;
 import com.samluys.jalbum.entity.FileEntity;
 import com.samluys.jutils.DateUtils;
 import com.samluys.jutils.FileUtils;
-import com.samluys.jutils.ToastUtils;
 import com.samluys.jutils.Utils;
-import com.samluys.jutils.log.LogUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -194,7 +192,7 @@ public class PhotoAdapter extends BaseAdapter {
                                 handler.sendMessage(msg);
                             } else {//未被选择
                                 if (size >= maxNum) {
-                                    ToastUtils.showLong("最多选择" + maxNum + "张");
+                                    Toast.makeText(mContext, "最多选择" + maxNum + "张", Toast.LENGTH_LONG).show();
 
                                 } else {
                                     mSelectPath.add(finalFilePath);
@@ -211,7 +209,6 @@ public class PhotoAdapter extends BaseAdapter {
                     });
 
                     if (mSelectPath.contains(filePath)) {
-                        LogUtils.e("filePath", "存在==》" + filePath);
                         holder.item_image.setColorFilter(Color.parseColor("#77000000"));
                         holder.mSelect.setImageResource(R.drawable.pictures_selected);
                     }
@@ -223,7 +220,6 @@ public class PhotoAdapter extends BaseAdapter {
                             Intent intent = new Intent(mContext, FilePhotoSeeSelectedActivity.class);
                             if (mDitPath.equals("allimgs")) {
                                 intent.putExtra("position", mImgFileEntitys.indexOf(fileEntity));
-                                LogUtils.d("click file path====>" + fileEntity.getPath());
                             } else {
                                 if (isShowTakePhoto) {
                                     intent.putExtra("position", position - 1);
