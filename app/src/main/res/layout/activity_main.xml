@@ -22,8 +22,18 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:text="TextView"
+        android:hint="路径"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_button" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="拍摄视频"
+        android:textColor="#dd456e"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_button"
+        app:layout_constraintTop_toTopOf="@+id/tv_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

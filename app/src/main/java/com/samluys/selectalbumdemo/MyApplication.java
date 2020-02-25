@@ -3,7 +3,6 @@ package com.samluys.selectalbumdemo;
 import android.app.Application;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.samluys.jutils.Utils;
 
 /**
  * @author luys

@@ -1,12 +1,16 @@
 package com.samluys.selectalbumdemo;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.samluys.jalbum.JAlbum;
 import com.samluys.jalbum.activity.PhotoActivity;
@@ -14,7 +18,11 @@ import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -44,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                                         .build()
                                         .maxSelectNum(10 - selectImages.size())
                                         .showGif(true)
-                                        .showTakePhoto(false)
+                                        .showTakePhoto(true)
                                         .showVideoOnly(false)
                                         .showVideo(true)
                                         .setVideoMaxTime(20)
@@ -63,7 +71,51 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AndPermission.with(MainActivity.this)
+                        .runtime()
+                        .permission(Permission.CAMERA,
+                                Permission.RECORD_AUDIO)
+                        .onGranted(new Action<List<String>>() {
+                            @Override
+                            public void onAction(List<String> data) {
+                                File cameraPhoto = new File(MainActivity.this.getExternalCacheDir().toString() + "/myvideo");
+                                Intent takePhotoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                                Uri photoUri = FileProvider.getUriForFile(
+                                        MainActivity.this,
+                                        getPackageName() + ".fileprovider",
+                                        cameraPhoto);
+                                takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                                startActivityForResult(takePhotoIntent, 1);
+                            }
+                        })
+                        .onDenied(new Action<List<String>>() {
+                            @Override
+                            public void onAction(List<String> data) {
+
+                            }
+                        })
+                        .start();
+            }
+        });
+
         textView = findViewById(R.id.textView);
+    }
+
+    private File createMediaFile() throws IOException {
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "CameraDemo");
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                return null;
+            }
+        }
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "VID_" + timeStamp;
+        String suffix = ".mp4";
+        File mediaFile = new File(mediaStorageDir + File.separator + imageFileName + suffix);
+        return mediaFile;
     }
 
     @Override
